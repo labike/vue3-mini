@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+  let obj = {
+    name: 'asd'
+  }
+
+  const map = new WeakMap()
+  map.set(obj, 'value')
+  obj = null
+
+  </script>
+  <!-- <script>
+    const p1 = {
+      lastName: '2',
+      firstName: 'koa',
+      get fullName() {
+        return this.firstName + this.lastName
+      }
+    }
+
+    const proxy = new Proxy(p1, {
+      get(target, key, receiver) {
+        console.log('getter被触发')
+        return Reflect.get(target, key, receiver)
+      }
+    })
+
+    console.log(proxy.fullName)
+  </script> -->
+  <!-- <script>
+    const p1 = {
+      lastName: '2',
+      firstName: 'koa',
+      get fullName() {
+        return this.firstName + this.lastName
+      }
+    }
+
+    const p2 = {
+      lastName: '2',
+      firstName: 'egg',
+      get fullName() {
+        return this.firstName + this.lastName
+      }
+    }
+  </script> -->
+  <!-- <script>
+    let quantity = 5
+    const product = {
+      price: 10,
+      quantity: quantity
+    }
+
+    const  proxyProduct = new Proxy(product, {
+      set(target, key, newVal, receiver) {
+        // console.log('setter', target, key, newVal, receiver) 
+        target[key] = newVal
+        effect()
+        return true  
+      },
+      get(target, key, receiver) {
+        // console.log('getter', target, key, receiver)
+        return target[key]
+      }
+    })
+
+    let total = 0
+    let effect = () => {
+      total = proxyProduct.price * proxyProduct.quantity
+    }
+    effect()
+    console.log(`总价格${total}`)
+
+    // Object.defineProperty(product, quantity, {
+    //   set(newVal) {
+    //     debugger
+    //     console.log('触发set')
+    //     quantity = newVal
+    //     effect()
+    //   },
+    //   get() {
+    //     console.log('触发get')
+    //     return quantity
+    //   }
+    // })
+  </script> -->
+</body>
+</html>
