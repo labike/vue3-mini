@@ -1,6 +1,9 @@
 var Vue = (function (exports) {
     'use strict';
 
+    var isObject = function (val) { return val !== null && typeof val === 'object'; };
+    var hashChange = function (value, oldValue) { return !Object.is(value, oldValue); };
+
     /******************************************************************************
     Copyright (c) Microsoft Corporation.
 
@@ -202,9 +205,69 @@ var Vue = (function (exports) {
         proxyMap.set(target, proxy);
         return proxy;
     }
+    var toReactive = function (value) {
+        return isObject(value) ? reactive(value) : value;
+    };
+
+    function ref(value) {
+        return createRef(value, false);
+    }
+    function createRef(rawValue, shallow) {
+        if (isRef(rawValue)) {
+            return rawValue;
+        }
+        return new RefImpl(rawValue, shallow);
+    }
+    function isRef(r) {
+        return !!(r && r.__v_isRef === true);
+    }
+    var RefImpl = /** @class */ (function () {
+        function RefImpl(value, __v_isShallow) {
+            this.__v_isShallow = __v_isShallow;
+            this.dep = undefined;
+            this.__v_isRef = true;
+            this._rawValue = value;
+            this._value = __v_isShallow ? value : toReactive(value);
+        }
+        Object.defineProperty(RefImpl.prototype, "value", {
+            get: function () {
+                trackRefValue(this);
+                return this._value;
+            },
+            set: function (newValue) {
+                // 如果值不相同则将newValue赋给rawValue
+                if (hashChange(newValue, this._rawValue)) {
+                    this._rawValue = newValue;
+                    this._value = toReactive(newValue);
+                    triggerRefValue(this);
+                }
+            },
+            enumerable: false,
+            configurable: true
+        });
+        return RefImpl;
+    }());
+    /**
+     * 收集依赖
+     * @param ref
+     */
+    function trackRefValue(ref) {
+        if (activeEffect) {
+            trackEffects(ref.dep || (ref.dep = createDep()));
+        }
+    }
+    /**
+     * 触发依赖
+     */
+    function triggerRefValue(ref) {
+        if (ref.dep) {
+            triggerEffects(ref.dep);
+        }
+    }
 
     exports.effect = effect;
     exports.reactive = reactive;
+    exports.ref = ref;
 
     Object.defineProperty(exports, '__esModule', { value: true });
 
